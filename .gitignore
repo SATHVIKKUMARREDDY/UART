@@ -1,0 +1,26 @@
+# Build directories
+build/
+cmake_build_debug/
+cmake_build_release/
+
+# Compiled binaries
+*.o
+*.a
+*.so
+uart_tlm
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# System files
+.DS_Store
+*~
