@@ -151,15 +151,4 @@ cout << "Received: " << data << endl;
 - [ ] Parity and stop bit handling
 - [ ] Real serial port integration
 
-## References
 
-- [SystemC Documentation](https://www.accellera.org/images/downloads/standards/systemc/systemc_language_reference_manual.pdf)
-- [TLM-2.0 Standard](https://www.accellera.org/downloads/standards/tlm/)
-
-## License
-
-This project is provided as-is for educational purposes.
-
-## Author
-
-Sathvik Kumar Reddy
