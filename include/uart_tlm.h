@@ -1,39 +1,55 @@
-#pragma once
+#ifndef UART_TLM_H
+#define UART_TLM_H
 
 #include <systemc>
 #include <tlm>
-#include <tlm_utils/simple_initiator_socket.h>
 #include <tlm_utils/simple_target_socket.h>
 #include <queue>
+#include <cstdint>
+#include <cstring>
 
-using namespace sc_core;
-using namespace tlm;
-using namespace tlm_utils;
-using namespace std;
-
-class UART_TLM : public sc_module {
+// ------------------------ UART_TLM Module ------------------------
+// This class models a UART peripheral using SystemC TLM.
+// It supports TX/RX buffers, status register, and simple timing based on baud rate.
+class UART_TLM : public sc_core::sc_module
+{
 public:
-    simple_target_socket<UART_TLM> target_socket;
+    // TLM target socket to receive read/write transactions
+    tlm_utils::simple_target_socket<UART_TLM> socket;
 
-    SC_CTOR(UART_TLM) : target_socket("target_socket"), baud_rate(9600) {
-        target_socket.register_b_transport(this, &UART_TLM::b_transport);
-        SC_THREAD(transmit_thread);
-        SC_THREAD(receive_thread);
-    }
+    // ------------------------ Constructors ------------------------
+    SC_CTOR(UART_TLM);                         // Default constructor (uses default baud rate)
+    UART_TLM(sc_core::sc_module_name name, double baud); // Constructor with custom baud rate
 
-    ~UART_TLM() {
-        cout << "UART_TLM module destroyed" << endl;
-    }
+    // ------------------------ TLM b_transport ------------------------
+    void b_transport(tlm::tlm_generic_payload& trans, sc_core::sc_time& delay);
 
-    void transmit_thread();
-    void receive_thread();
+    // ------------------------ Threads ------------------------
+    void transmit_thread();       // Simulates UART transmission (TX)
+    void receive_event_thread();  // Handles received data (RX)
+
+    // ------------------------ Status Register ------------------------
+    uint32_t status_reg() const;  // Returns TX/RX status as a 32-bit register
 
 private:
-    uint32_t baud_rate;
-    queue<uint8_t> rx_buffer;
-    queue<uint8_t> tx_buffer;
-    sc_event rx_event;
-    sc_event tx_event;
-    
-    void b_transport(tlm_generic_payload& trans, sc_time& delay);
+    // ------------------------ Buffers ------------------------
+    std::queue<uint8_t> tx_buffer;  // Transmit buffer
+    std::queue<uint8_t> rx_buffer;  // Receive buffer
+
+    // ------------------------ Flags ------------------------
+    bool tx_busy;   // UART is currently transmitting
+    bool tx_ready;  // UART is ready to transmit
+    bool rx_ready;  // Data available in RX buffer
+
+    // ------------------------ Timing ------------------------
+    double baud_rate;           // UART baud rate in bits per second
+    sc_core::sc_time bit_time;  // Time for one bit
+    sc_core::sc_time byte_time; // Time for one byte (start + 8 data + stop)
+
+    // ------------------------ Events ------------------------
+    sc_core::sc_event tx_event;       // Notifies transmit thread to start sending
+    sc_core::sc_event tx_done_event;  // Notifies TX completion (optional)
+    sc_core::sc_event rx_event;       // Notifies data received in RX buffer
 };
+
+#endif

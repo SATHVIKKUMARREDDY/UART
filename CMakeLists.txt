@@ -16,6 +16,7 @@ include_directories(
 add_executable(uart_tlm
     src/uart_tlm.cpp
     src/sc_main.cpp
+    testbench/testbench.cpp
 )
 
 # Link SystemC library explicitly
